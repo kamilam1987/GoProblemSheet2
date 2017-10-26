@@ -11,16 +11,18 @@
   </head>
   <body>
     <h1>Guessing game</h1>
-    <a href="/newgame">New Game</a>
+    <a href="/newgame/">New Game</a>
     <!--Message for template-->
     <h2>{{.Message}}</h2>
      <!-- Add a form, with a text input with the name “guess” -->
     <!--https://www.w3schools.com/html/tryit.asp?filename=tryhtml_form_submit -->
-    <form action = "/guess" method = "get">
+    <form action = "/guess/" method = "get">
       <input type = "text" name = "yourGuess">
       <br><br>
       <input type="submit" value="Guess">
     </form>
+    <p>You guessed {{.Guess}}</p>
+        
     
 
     <!-- Optional JavaScript -->

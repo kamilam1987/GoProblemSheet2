@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 //Code adapted from :https://golang.org/pkg/text/template/
 type Game struct {
 	Message string
+	Guess   string
 }
 
 //Function tempHandler
@@ -23,6 +25,10 @@ func tempHandler(w http.ResponseWriter, r *http.Request) {
 	//Sends message from guess template
 	//code adapted from:https://www.youtube.com/watch?v=GTSq1VPPFco&feature=youtu.be
 	t.Execute(w, Game{Message: "Guess a number between 1 and 20"})
+
+	//code adapted from: https://stackoverflow.com/questions/15407719/in-gos-http-package-how-do-i-get-the-query-string-on-a-post-request/15408779#15408779
+	num := r.URL.Query()
+	fmt.Fprintf(w, num.Get("yourGuess"))
 
 	if !hasCookie(r) {
 		//Code adapted from: http://golangcookbook.blogspot.ie/2012/11/generate-random-number-in-given-range.html
