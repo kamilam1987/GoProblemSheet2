@@ -52,7 +52,7 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./src")))
 
 	//Handles requests from guess template
-	http.HandleFunc("/guess", tempHandler)
+	http.HandleFunc("/guess/", tempHandler)
 
 	//http.Handle function tells the http package to handle all requests
 	/*http.HandleFunc("/guess/", func(w http.ResponseWriter, r *http.Request) {
