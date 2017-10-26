@@ -4,8 +4,11 @@
 package main
 
 import (
+	"math/rand"
 	"net/http"
+	"strconv"
 	"text/template"
+	"time"
 )
 
 //Code adapted from :https://golang.org/pkg/text/template/
@@ -21,9 +24,27 @@ func tempHandler(w http.ResponseWriter, r *http.Request) {
 	//code adapted from:https://www.youtube.com/watch?v=GTSq1VPPFco&feature=youtu.be
 	t.Execute(w, Game{Message: "Guess a number between 1 and 20"})
 
+	if !hasCookie(r) {
+		//Code adapted from: http://golangcookbook.blogspot.ie/2012/11/generate-random-number-in-given-range.html
+		//Code will result in a different random number each time random function is called
+		rand.Seed(time.Now().Unix())
+		randNum := rand.Intn(20) + 1
+		//Code adapted from:https://astaxie.gitbooks.io/build-web-application-with-golang/en/06.1.html
+		//Set expiration to 365 days
+		expiration := time.Now().Add(365 * 24 * time.Hour)
+		//Sets cookie
+		cookie := http.Cookie{Name: "target", Value: strconv.Itoa(randNum), Expires: expiration}
+		http.SetCookie(w, &cookie)
+
+	} //End of if
+
 } //End of tempHandler
 
-//Function main
+//Function hasCookie
+func hasCookie(r *http.Request) bool {
+	return len(r.Cookies()) != 0
+} //End of function hasCookie
+
 func main() {
 	//code adapted from:https://stackoverflow.com/questions/26559557/how-do-you-serve-a-static-html-file-using-a-go-web-server
 	// FileServe serves index.html from src folder
