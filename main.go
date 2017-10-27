@@ -51,7 +51,10 @@ func tempHandler(w http.ResponseWriter, r *http.Request) {
 		//if equal print message
 	} else {
 		g.DisplayMsg = "Correct"
-
+		cookies := r.Cookies()
+		target := cookies[0]
+		target.Value = strconv.Itoa(rand.Intn(20) + 1)
+		target.Expires = time.Now().Add(365 * 24 * time.Hour)
 	}
 
 	if !hasCookie(r) {
@@ -96,7 +99,7 @@ func getTarget(r *http.Request) (int, error) {
 		}
 	}
 	return -1, err
-}
+} //End of function getTarget
 
 func main() {
 	//code adapted from:https://stackoverflow.com/questions/26559557/how-do-you-serve-a-static-html-file-using-a-go-web-server
