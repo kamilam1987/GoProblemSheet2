@@ -13,7 +13,9 @@ import (
 
 //Code adapted from :https://golang.org/pkg/text/template/
 type Game struct {
-	Message, Guess, DisplayMsg string
+	Message    string
+	Guessed    string
+	DisplayMsg string
 }
 
 //Function tempHandler
@@ -22,8 +24,9 @@ func tempHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("template/guess.html")
 	//Sends message from guess template
 	//code adapted from:https://www.youtube.com/watch?v=GTSq1VPPFco&feature=youtu.be
-	t.Execute(w, Game{Message: "Guess a number between 1 and 20", Guess: "", DisplayMsg: "You haven't guessed yet"})
+	t.Execute(w, Game{Message: "Guess a number between 1 and 20", Guessed: "", DisplayMsg: "You haven't guessed yet"})
 	var num string
+
 	g := Game{}
 	//Get query from template
 	if userGuess(r) {
@@ -32,7 +35,7 @@ func tempHandler(w http.ResponseWriter, r *http.Request) {
 		num := r.URL.Query().Get("yourGuess")
 		num = r.URL.Query().Get("yourGuess")
 		//fmt.Fprint(w, num.Get("yourGuess"))
-		g.Guess = string(num)
+		g.Guessed = string(num)
 	}
 	targetInt, _ := getTarget(r)
 	//set to int
@@ -48,10 +51,7 @@ func tempHandler(w http.ResponseWriter, r *http.Request) {
 		//if equal print message
 	} else {
 		g.DisplayMsg = "Correct"
-		cookies := r.Cookies()
-		target := cookies[0]
-		target.Value = strconv.Itoa(rand.Intn(20) + 1)
-		target.Expires = time.Now().Add(365 * 24 * time.Hour)
+
 	}
 
 	if !hasCookie(r) {
