@@ -4,18 +4,16 @@
 package main
 
 import (
-	"fmt"
+	"html/template"
 	"math/rand"
 	"net/http"
 	"strconv"
-	"text/template"
 	"time"
 )
 
 //Code adapted from :https://golang.org/pkg/text/template/
 type Game struct {
-	Message string
-	Guess   string
+	Message, Guess, DisplayMsg string
 }
 
 //Function tempHandler
@@ -24,11 +22,37 @@ func tempHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("template/guess.html")
 	//Sends message from guess template
 	//code adapted from:https://www.youtube.com/watch?v=GTSq1VPPFco&feature=youtu.be
-	t.Execute(w, Game{Message: "Guess a number between 1 and 20"})
+	t.Execute(w, Game{Message: "Guess a number between 1 and 20", Guess: "", DisplayMsg: "You haven't guessed yet"})
+	var num string
+	g := Game{}
+	//Get query from template
+	if userGuess(r) {
 
-	//code adapted from: https://stackoverflow.com/questions/15407719/in-gos-http-package-how-do-i-get-the-query-string-on-a-post-request/15408779#15408779
-	num := r.URL.Query()
-	fmt.Fprintf(w, num.Get("yourGuess"))
+		//code adapted from: https://stackoverflow.com/questions/15407719/in-gos-http-package-how-do-i-get-the-query-string-on-a-post-request/15408779#15408779
+		num := r.URL.Query().Get("yourGuess")
+		num = r.URL.Query().Get("yourGuess")
+		//fmt.Fprint(w, num.Get("yourGuess"))
+		g.Guess = string(num)
+	}
+	targetInt, _ := getTarget(r)
+	//set to int
+	numInt, _ := strconv.Atoi(num)
+	//if number smaler then target
+	if numInt < targetInt {
+		//Print message
+		g.DisplayMsg = "To low"
+		//if number higher then target
+	} else if numInt > targetInt {
+		//Print message
+		g.DisplayMsg = " To high"
+		//if equal print message
+	} else {
+		g.DisplayMsg = "Correct"
+		cookies := r.Cookies()
+		target := cookies[0]
+		target.Value = strconv.Itoa(rand.Intn(20) + 1)
+		target.Expires = time.Now().Add(365 * 24 * time.Hour)
+	}
 
 	if !hasCookie(r) {
 		//Code adapted from: http://golangcookbook.blogspot.ie/2012/11/generate-random-number-in-given-range.html
@@ -46,10 +70,33 @@ func tempHandler(w http.ResponseWriter, r *http.Request) {
 
 } //End of tempHandler
 
+//Function userGuess
+func userGuess(r *http.Request) bool {
+	return len(r.URL.Query().Get("yourGuess")) != 0
+} //End of user Guess
+
 //Function hasCookie
 func hasCookie(r *http.Request) bool {
 	return len(r.Cookies()) != 0
 } //End of function hasCookie
+
+//code adapted from: https://astaxie.gitbooks.io/build-web-application-with-golang/en/06.1.html
+func getTarget(r *http.Request) (int, error) {
+	cookies := r.Cookies()
+	//Declare error
+	var err error
+	//Looping cookie range
+	for _, cookie := range cookies {
+		if cookie.Name == "target" {
+			targetInt, err := strconv.Atoi(cookie.Value)
+			if err == nil {
+				// number as an integer with no error
+				return targetInt, nil
+			}
+		}
+	}
+	return -1, err
+}
 
 func main() {
 	//code adapted from:https://stackoverflow.com/questions/26559557/how-do-you-serve-a-static-html-file-using-a-go-web-server

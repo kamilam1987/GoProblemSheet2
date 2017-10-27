@@ -16,12 +16,13 @@
     <h2>{{.Message}}</h2>
      <!-- Add a form, with a text input with the name “guess” -->
     <!--https://www.w3schools.com/html/tryit.asp?filename=tryhtml_form_submit -->
-    <form action = "/guess/" method = "get">
+    <form action = "/guess/" method = "GET">
       <input type = "text" name = "yourGuess">
       <br><br>
       <input type="submit" value="Guess">
     </form>
     <p>You guessed {{.Guess}}</p>
+    <p>{{.DisplayMsg}}</p>
         
     
 
